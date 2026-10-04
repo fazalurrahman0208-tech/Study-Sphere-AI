@@ -1,1 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Sphere AI | Next-Gen Learning & IDE</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-matte: #0a0a0c;
+      --card-bg: #121216;
+      --card-elevated: #18181f;
+      --gold-primary: #e5b869;
+      --gold-bright: #ffd987;
+      --gold-dark: #8c6a2e;
+      --accent-glow: rgba(229, 184, 105, 0.22);
+      --text-main: #f5f5f7;
+      --text-muted: #9e9ea7;
+      --border-subtle: #26262e;
+      --border-highlight: #453c2a;
+      --code-bg: #09090b;
+      --terminal-green: #3fb950;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-matte);
+      color: var(--text-main);
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(229, 184, 105, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(229, 184, 105, 0.03) 0%, transparent 45%);
+      min-height: 100vh;
+    }
+
+    /* Primary Navigation */
+    nav {
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.1rem 3.5rem;
+    }
+
+    .brand {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .brand i {
+      color: var(--gold-primary);
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .nav-links a:hover, .nav-links a.active-link {
+      color: var(--gold-bright);
+      text-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .btn-nav-runner {
+      background: rgba(229, 184, 105, 0.1);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-bright) !important;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-nav-runner:hover {
+      background: var(--gold-primary);
+      color: #000 !important;
+      text-shadow: none !important;
+    }
+
+    .container {
+      max-width: 1160px;
+      margin: auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Page View Containers */
+    .page-view {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .page-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4.5rem 2rem 2rem 2rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.35rem 1rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+      background: rgba(229, 184, 105, 0.08);
+      border: 1px solid var(--border-highlight);
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 1rem;
+      background: linear-gradient(180deg, #ffffff 40%, var(--gold-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      max-width: 620px;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+    }
+
+    /* 3D Book */
+    .book-wrapper {
+      perspective: 1200px;
+      margin: 1rem auto 3rem auto;
+      cursor: pointer;
+    }
+
+    .book {
+      width: 280px;
+      height: 380px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .book.open {
+      transform: translateX(55px);
+    }
+
+    .book-cover {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #18181f, #0d0d10);
+      border: 2px solid var(--gold-primary);
+      border-radius: 8px 18px 18px 8px;
+      transform-origin: left;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9), 0 0 25px rgba(229, 184, 105, 0.15);
+      z-index: 2;
+    }
+
+    .book.open .book-cover {
+      transform: rotateY(-140deg);
+    }
+
+    .book-cover i {
+      font-size: 4rem;
+      color: var(--gold-bright);
+      margin-bottom: 1.2rem;
+      filter: drop-shadow(0 0 10px var(--accent-glow));
+    }
+
+    .book-cover h3 {
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-main);
+    }
+
+    .book-page {
+      position: absolute;
+      width: 96%;
+      height: 96%;
+      top: 2%;
+      left: 2%;
+      background: #141419;
+      border: 1px solid var(--border-highlight);
+      color: var(--text-main);
+      border-radius: 6px 14px 14px 6px;
+      padding: 1.5rem;
+      box-shadow: inset 5px 0 10px rgba(0,0,0,0.6);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .book-page h3 {
+      font-size: 1.05rem;
+      color: var(--gold-bright);
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+    }
+
+    .book-page p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: left;
+      line-height: 1.7;
+    }
+
+    /* Course Grid on Home */
+    .section-title {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 3.5rem 0 1.5rem 0;
+      color: var(--text-main);
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .course-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 1.8rem 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .course-card i {
+      font-size: 2.4rem;
+      color: var(--gold-primary);
+      transition: transform 0.25s ease;
+    }
+
+    .course-card span {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .course-card small {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .course-card:hover {
+      border-color: var(--gold-primary);
+      background: var(--card-elevated);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(229, 184, 105, 0.15);
+    }
+
+    /* Dynamic Course Hub & Extension Sub-Navigation */
+    .course-page-header {
+      padding: 2.5rem 0 1.2rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .extension-nav {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.5rem;
+      display: flex;
+      gap: 0.6rem;
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+
+    .ext-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 0.65rem 1.2rem;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .ext-btn:hover {
+      color: var(--text-main);
+      background: var(--card-elevated);
+    }
+
+    .ext-btn.active {
+      background: rgba(229, 184, 105, 0.12);
+      border-color: var(--gold-primary);
+      color: var(--gold-bright);
+      box-shadow: 0 0 12px rgba(229, 184, 105, 0.15);
+    }
+
+    .difficulty-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-basic { background: rgba(63, 185, 80, 0.15); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.3); }
+    .badge-mid { background: rgba(88, 166, 255, 0.15); color: #58a6ff; border: 1px solid rgba(88, 166, 255, 0.3); }
+    .badge-top { background: rgba(229, 184, 105, 0.15); color: var(--gold-bright); border: 1px solid var(--gold-dark); }
+
+    .topic-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .topic-section h3 {
+      font-size: 1.35rem;
+      color: var(--text-main);
+      margin-bottom: 0.6rem;
+    }
+
+    .topic-section p {
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+      font-size: 0.95rem;
+    }
+
+    .code-block-wrapper {
+      background: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .code-header {
+      background: #141419;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    pre {
+      padding: 1.2rem;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #e6edf3;
+      line-height: 1.5;
+    }
+
+    .output-box {
+      background: #0d1117;
+      border-left: 3px solid var(--terminal-green);
+      padding: 0.8rem 1rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--terminal-green);
+      white-space: pre-wrap;
+    }
+
+    /* Live Code Runner Studio */
+    .runner-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.5rem;
+      margin: 2rem 0 5rem 0;
+    }
+
+    @media (max-width: 850px) {
+      .runner-layout { grid-template-columns: 1fr; }
+    }
+
+    .editor-pane, .console-pane {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+    }
+
+    .pane-header {
+      background: #141419;
+      padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    #codeEditorTextarea {
+      flex: 1;
+      background: var(--code-bg);
+      border: none;
+      color: #f0f6fc;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.95rem;
+      padding: 1.2rem;
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    #consoleOutput {
+      flex: 1;
+      background: #060709;
+      color: var(--terminal-green);
+      font-family: 'Consolas', 'Courier New', monospace;
+      padding: 1.2rem;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+    }
+
+    /* Chat Hub */
+    .chat-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 480px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+    }
+
+    .message.bot {
+      background: var(--card-elevated);
+      border-left: 3px solid var(--gold-primary);
+      color: var(--text-main);
+    }
+
+    .message.user {
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+      color: #0a0a0c;
+      font-weight: 600;
+      align-self: flex-end;
+    }
+
+    .chat-input-bar {
+      display: flex;
+      padding: 1rem;
+      background: #0d0d10;
+      border-top: 1px solid var(--border-subtle);
+      gap: 0.8rem;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.8rem 1.1rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .chat-input-bar input:focus {
+      border-color: var(--gold-primary);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-primary));
+      color: #0a0a0c;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-gold:hover {
+      box-shadow: 0 0 15px rgba(229, 184, 105, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* Mock Test */
+    .quiz-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 2.2rem;
+      margin-bottom: 5rem;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .quiz-option {
+      background: var(--card-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--gold-dark);
+      background: #1e1e26;
+    }
+
+    .quiz-option.selected {
+      border-color: var(--gold-primary);
+      background: rgba(229, 184, 105, 0.08);
+      color: var(--gold-bright);
+      font-weight: 600;
+    }
+
+    .result-box {
+      text-align: center;
+      padding: 2rem;
+      display: none;
+    }
+
+    .score-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 4px solid var(--gold-primary);
+      box-shadow: 0 0 20px rgba(229, 184, 105, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 1.5rem auto;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="brand" onclick="navigateTo('home-view')">
+      <i class="fa-solid fa-cube"></i>
+      <div>STUDY <span>SPHERE</span></div>
+    </div>
+    <ul class="nav-links">
+      <li><a onclick="navigateTo('home-view')">Home</a></li>
+      <li><a onclick="navigateTo('home-view', 'course-selection')">Courses</a></li>
+      <li><a onclick="navigateTo('runner-view')" class="btn-nav-runner"><i class="fa-solid fa-play"></i> Code Runner</a></li>
+      <li><a onclick="navigateTo('home-view', 'doubt-solver')">Ask AI</a></li>
+      <li><a onclick="navigateTo('home-view', 'mock-test')">Mock Test</a></li>
+    </ul>
+  </nav>
+
+  <div id="home-view" class="page-view active">
+    
+    <section class="hero" id="hero">
+      <div class="hero-badge">Next-Gen AI Developer Hub</div>
+      <h1>Master Languages & Frameworks</h1>
+      <p>Select any language below to open its dedicated ecosystem portal with extension bars, tiered code examples, and live AI guidance.</p>
+      
+      <div class="book-wrapper" onclick="toggleBook()">
+        <div class="book" id="interactiveBook">
+          <div class="book-cover">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <h3>Sphere Docs</h3>
+            <span style="font-size: 0.75rem; color: var(--gold-primary); margin-top: 10px; letter-spacing: 1px;">[ TAP TO OPEN ]</span>
+          </div>
+          <div class="book-page">
+            <div>
+              <h3>Ecosystem Library</h3>
+              <p style="margin-top: 10px;">
+                • Python (NumPy, Pandas, Django, FastAPI)<br>
+                • Java (Core OOP, Spring Boot, Hibernate)<br>
+                • HTML5 & CSS Grid Layouts<br>
+                • SQL (Joins, Window Funcs, CTEs)
+              </p>
+            </div>
+            <p style="font-weight: 600; color: var(--gold-bright); font-size: 0.8rem;">Click any module card below to start.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container" id="course-selection">
+      <h2 class="section-title">Select a Language to Open Dedicated Portal</h2>
+      <div class="courses-grid">
+        <div class="course-card" onclick="openCoursePortal('python')">
+          <i class="fa-brands fa-python"></i>
+          <span>Python</span>
+          <small>NumPy, Pandas, Django, FastAPI</small>
+        </div>
+        <div class="course-card" onclick="openCoursePortal('java')">
+          <i class="fa-brands fa-java"></i>
+          <span>Java</span>
+          <small>OOP, Spring Boot, Hibernate</small>
+        </div>
+        <div class="course-card" onclick="openCoursePortal('html_css')">
+          <i class="fa-brands fa-html5"></i>
+          <span>HTML & CSS</span>
+          <small>Semantic, Flexbox, Grid</small>
+        </div>
+        <div class="course-card" onclick="openCoursePortal('sql')">
+          <i class="fa-solid fa-database"></i>
+          <span>SQL</span>
+          <small>Complex Joins, CTEs, Windowing</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="doubt-solver">
+      <h2 class="section-title">Universal AI Doubt Solver (Ask Anything)</h2>
+      <div class="chat-container">
+        <div class="chat-messages" id="generalChat">
+          <div class="message bot">Hello! Ask me any programming doubt, algorithmic bug, or architecture question.</div>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" id="generalInput" placeholder="Type any programming question here..." onkeypress="handleEnter(event, 'general')" />
+          <button class="btn-gold" onclick="sendGeneralQuery()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="mock-test">
+      <h2 class="section-title">Skill Assessment & Mock Test</h2>
+      <div class="quiz-card">
+        <div id="quizInterface">
+          <div style="display: flex; justify-content: space-between; color: var(--gold-bright); font-size: 0.85rem; font-weight: 600; margin-bottom: 1.2rem;">
+            <span id="quizSubject">Track: Full Stack Engineering</span>
+            <span id="quizStep">Stage 1 of 4</span>
+          </div>
+          <h3 id="quizQuestion" style="margin-bottom: 1.5rem;">What is the correct file extension for Python source files?</h3>
+          <div class="quiz-options" id="quizOptions"></div>
+          <button class="btn-gold" onclick="submitAnswer()" id="nextBtn" style="margin-top: 1rem;">Submit & Next</button>
+        </div>
+
+        <div class="result-box" id="resultBox">
+          <h2 style="font-size: 1.6rem;">Assessment Results</h2>
+          <div class="score-circle" id="scoreCircle">0%</div>
+          <p id="scoreSummary" style="color: var(--text-muted); margin-bottom: 2rem;"></p>
+          <button class="btn-gold" onclick="restartTest()" style="margin: auto;"><i class="fa-solid fa-rotate-right"></i> Retake Test</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="course-view" class="page-view">
+    <div class="container">
+      <div class="course-page-header">
+        <div>
+          <button class="btn-gold" onclick="navigateTo('home-view')" style="padding: 0.4rem 1rem; font-size: 0.8rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-arrow-left"></i> Back to Main</button>
+          <h1 id="coursePortalTitle" style="font-size: 2.4rem;">Python Ecosystem</h1>
+          <p id="coursePortalSubtitle" style="color: var(--text-muted);">Explore official extensions, frameworks, and code patterns.</p>
+        </div>
+      </div>
+
+      <div class="extension-nav" id="extensionBar"></div>
+
+      <div id="extensionContent"></div>
+
+      <h2 class="section-title" id="courseChatTitle">Ask Course AI Assistant</h2>
+      <div class="chat-container" style="margin-bottom: 5rem;">
+        <div class="chat-messages" id="courseDedicatedChat"></div>
+        <div class="chat-input-bar">
+          <input type="text" id="courseDedicatedInput" placeholder="Ask about this extension or topic..." onkeypress="handleEnter(event, 'courseDedicated')" />
+          <button class="btn-gold" onclick="sendCourseDedicatedQuery()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="runner-view" class="page-view">
+    <div class="container">
+      <div class="course-page-header">
+        <div>
+          <h1 style="font-size: 2.2rem;"><i class="fa-solid fa-terminal" style="color: var(--gold-primary);"></i> Interactive Code Runner</h1>
+          <p style="color: var(--text-muted);">Write code, test logic, and view instant terminal output right in your browser.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-gold" onclick="runClientCode()"><i class="fa-solid fa-play"></i> Run Code</button>
+          <button class="btn-gold" onclick="clearConsole()" style="background: var(--card-elevated); border: 1px solid var(--border-subtle); color: var(--text-main);"><i class="fa-solid fa-trash"></i> Clear</button>
+        </div>
+      </div>
+
+      <div class="runner-layout">
+        <div class="editor-pane">
+          <div class="pane-header">
+            <span><i class="fa-solid fa-code"></i> Workspace (JavaScript / Python-style Logic)</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Auto-Console Intercept</span>
+          </div>
+          <textarea id="codeEditorTextarea" spellcheck="false">// Try running this JavaScript / Logic example!
+function calculateAnalytics(scores) {
+    let total = scores.reduce((a, b) => a + b, 0);
+    let avg = total / scores.length;
+    let topScorer = Math.max(...scores);
+    
+    console.log("=== Study Sphere AI Analytics ===");
+    console.log("Total Submissions:", scores.length);
+    console.log("Class Average:", avg.toFixed(2));
+    console.log("Top Score Recorded:", topScorer);
+}
+
+calculateAnalytics([98, 85, 92, 77, 95]);
+</textarea>
+        </div>
+
+        <div class="console-pane">
+          <div class="pane-header">
+            <span><i class="fa-solid fa-terminal"></i> Terminal Output</span>
+            <span style="color: var(--terminal-green); font-size: 0.8rem;">● Live Output</span>
+          </div>
+          <div id="consoleOutput">> Ready. Click "Run Code" to execute workspace script.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Unified Navigation Controller
+    function navigateTo(viewId, scrollTargetId = null) {
+      document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (scrollTargetId) {
+        setTimeout(() => {
+          const el = document.getElementById(scrollTargetId);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+
+    function toggleBook() {
+      document.getElementById('interactiveBook').classList.toggle('open');
+    }
+
+    // 2. Comprehensive Course, Extension, and Multi-Tiered Code Database
+    const courseEcosystem = {
+      python: {
+        title: "Python Ecosystem & Frameworks",
+        subtitle: "Master everything from core syntax to high-performance data processing & scalable web backends.",
+        extensions: [
+          {
+            id: "core",
+            name: "Core Python",
+            icon: "fa-brands fa-python",
+            tiers: [
+              {
+                level: "Basic Level",
+                badge: "badge-basic",
+                title: "Dynamic Typing, Lists & Dict Comprehensions",
+                desc: "Efficient in-memory transformations using clean, Pythonic syntax.",
+                code: `# Basic List & Dict Comprehension\nnumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\neven_squares = [n**2 for n in numbers if n % 2 == 0]\n\n# Mapping into a dictionary\nsquare_map = {n: n**2 for n in numbers[:4]}\nprint("Even Squares:", even_squares)\nprint("Square Map:", square_map)`,
+                output: "Even Squares: [4, 16, 36, 64, 100]\nSquare Map: {1: 1, 2: 4, 3: 9, 4: 16}"
+              },
+              {
+                level: "Top Level (Production)",
+                badge: "badge-top",
+                title: "Custom Decorators & Memory-Efficient Generators",
+                desc: "Creating reusable function wrappers with parameter inspection and streaming iterators.",
+                code: `import time\nfrom functools import wraps\n\ndef performance_tracker(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        start = time.perf_counter()\n        result = func(*args, **kwargs)\n        duration = time.perf_counter() - start\n        print(f"Executed [{func.__name__}] in {duration:.6f}s")\n        return result\n    return wrapper\n\n@performance_tracker\ndef generate_primes(limit):\n    primes = []\n    for candidate in range(2, limit):\n        if all(candidate % p != 0 for p in primes):\n            primes.append(candidate)\n    return len(primes)\n\nprint("Total Primes Found:", generate_primes(5000))`,
+                output: "Executed [generate_primes] in 0.008412s\nTotal Primes Found: 669"
+              }
+            ]
+          },
+          {
+            id: "numpy",
+            name: "NumPy (Data Arrays)",
+            icon: "fa-solid fa-calculator",
+            tiers: [
+              {
+                level: "Basic Level",
+                badge: "badge-basic",
+                title: "Vectorized Ndarray Operations",
+                desc: "Eliminate slow Python loops by leveraging continuous memory blocks in C.",
+                code: `import numpy as np\n\narr1 = np.array([10, 20, 30, 40])\narr2 = np.array([1, 2, 3, 4])\n\n# Element-wise operations (Broadcasted in C)\nprint("Vectorized Sum:", arr1 + arr2)\nprint("Vectorized Multiplication:", arr1 * arr2)`,
+                output: "Vectorized Sum: [11 22 33 44]\nVectorized Multiplication: [ 10  40  90 160]"
+              },
+              {
+                level: "Top Level (Production)",
+                badge: "badge-top",
+                title: "2D Matrix Dot Products & Multidimensional Slicing",
+                desc: "Linear algebra matrix transformations used heavily in machine learning embeddings.",
+                code: `import numpy as np\n\n# 3x3 Matrices\nmatrix_a = np.arange(1, 10).reshape(3, 3)\nmatrix_b = np.eye(3) * 2  # Identity multiplied by 2\n\ndot_result = np.dot(matrix_a, matrix_b)\nprint("Matrix A:\\n", matrix_a)\nprint("\\nDot Product with 2I:\\n", dot_result)`,
+                output: "Matrix A:\n [[1 2 3]\n  [4 5 6]\n  [7 8 9]]\n\nDot Product with 2I:\n [[ 2.  4.  6.]\n  [ 8. 10. 12.]\n  [14. 16. 18.]]"
+              }
+            ]
+          },
+          {
+            id: "pandas",
+            name: "Pandas (Analytics)",
+            icon: "fa-solid fa-table",
+            tiers: [
+              {
+                level: "Basic Level",
+                badge: "badge-basic",
+                title: "DataFrame Creation & Column Filtering",
+                desc: "Loading, structuring, and filtering structured tabular datasets.",
+                code: `import pandas as pd\n\ndata = {\n    'Student': ['Fazal', 'Aman', 'Sara', 'Zayn'],\n    'Course': ['Python', 'Java', 'Python', 'SQL'],\n    'Score': [96, 88, 92, 79]\n}\ndf = pd.DataFrame(data)\nprint(df[df['Score'] >= 90])`,
+                output: "  Student  Course  Score\n0   Fazal  Python     96\n2    Sara  Python     92"
+              },
+              {
+                level: "Top Level (Production)",
+                badge: "badge-top",
+                title: "Grouping, Pivot Tables & Aggregations",
+                desc: "Multi-index grouped pipelines computing descriptive metrics across large clusters.",
+                code: `import pandas as pd\n\ndf = pd.DataFrame({\n    'Branch': ['North', 'North', 'South', 'South', 'North'],\n    'Dept': ['Dev', 'QA', 'Dev', 'QA', 'Dev'],\n    'Revenue_k': [120, 80, 140, 95, 110]\n})\n\nanalytics = df.groupby(['Branch', 'Dept'])['Revenue_k'].agg(['mean', 'sum'])\nprint(analytics)`,
+                output: "              mean  sum\nBranch Dept            \nNorth  Dev   115.0  230\n       QA     80.0   80\nSouth  Dev   140.0  140\n       QA     95.0   95"
+              }
+            ]
+          },
+          {
+            id: "django",
+            name: "Django (Enterprise Web)",
+            icon: "fa-solid fa-server",
+            tiers: [
+              {
+                level: "Basic Level",
+                badge: "badge-basic",
+                title: "Model Definitions & ORM Queries",
+                desc: "Defining database schema as Python classes with automatic migration sync.",
+                code: `from django.db import models\n\nclass StudentProfile(models.Model):\n    full_name = models.CharField(max_length=150)\n    enrolled_date = models.DateField(auto_now_add=True)\n    is_certified = models.BooleanField(default=False)\n\n# Querying the database without raw SQL\n# certified_students = StudentProfile.objects.filter(is_certified=True)`,
+                output: "<QuerySet [<StudentProfile: Fazal>, <StudentProfile: Sara>]>"
+              },
+              {
+                level: "Top Level (Production)",
+                badge: "badge-top",
+                title: "Django REST Framework (DRF) Generic API Endpoints",
+                desc: "High-throughput JSON serialization with token-based authorization.",
+                code: `from rest_framework import serializers, viewsets, permissions\n\nclass ProfileSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = StudentProfile\n        fields = '__all__'\n\nclass ProfileViewSet(viewsets.ModelViewSet):\n    queryset = StudentProfile.objects.all()\n    serializer_class = ProfileSerializer\n    permission_classes = [permissions.IsAuthenticated]`,
+                output: "HTTP 200 OK\nAllow: GET, POST, HEAD, OPTIONS\nContent-Type: application/json\n[{\"id\":1, \"full_name\":\"Fazal\", \"is_certified\":true}]"
+              }
+            ]
+          }
+        ]
+      },
+      java: {
+        title: "Java Enterprise Ecosystem",
+        subtitle: "Class architecture, JVM optimizations, Spring Boot Microservices, and Hibernate persistence.",
+        extensions: [
+          {
+            id: "core_java",
+            name: "Core Java & Streams",
+            icon: "fa-brands fa-java",
+            tiers: [
+              {
+                level: "Basic to Top Level",
+                badge: "badge-top",
+                title: "Stream API Pipelines & Parallel Processing",
+                desc: "Functional programming patterns over collections with high-speed multithreading.",
+                code: `import java.util.*;\nimport java.util.stream.Collectors;\n\npublic class StreamExample {\n    public static void main(String[] args) {\n        List<String> frameworks = Arrays.asList("Spring Boot", "Hibernate", "Django", "FastAPI");\n        \n        List<String> javaFrameworks = frameworks.stream()\n            .filter(f -> f.contains("Spring") || f.contains("Hibernate"))\n            .map(String::toUpperCase)\n            .collect(Collectors.toList());\n            \n        System.out.println("Java Stacks: " + javaFrameworks);\n    }\n}`,
+                output: "Java Stacks: [SPRING BOOT, HIBERNATE]"
+              }
+            ]
+          },
+          {
+            id: "spring_boot",
+            name: "Spring Boot Microservices",
+            icon: "fa-solid fa-leaf",
+            tiers: [
+              {
+                level: "Top Level (Production)",
+                badge: "badge-top",
+                title: "RESTful Service Controller with Dependency Injection",
+                desc: "Decoupled microservice endpoints with automated IoC container lifecycle.",
+                code: `@RestController\n@RequestMapping("/api/v2/sphere")\npublic class CourseController {\n\n    @Autowired\n    private CourseService courseService;\n\n    @GetMapping("/{id}")\n    public ResponseEntity<CourseDTO> getCourse(@PathVariable Long id) {\n        return ResponseEntity.ok(courseService.findById(id));\n    }\n}`,
+                output: "HTTP/1.1 200 OK\n{\"id\": 101, \"title\": \"Java Microservices\", \"status\": \"ACTIVE\"}"
+              }
+            ]
+          }
+        ]
+      },
+      html_css: {
+        title: "HTML5 & Modern CSS3 Architecture",
+        subtitle: "Semantic web standards, CSS Subgrid, Flexbox, and hardware-accelerated animations.",
+        extensions: [
+          {
+            id: "css_grid",
+            name: "CSS Grid & Flexbox",
+            icon: "fa-brands fa-css3-alt",
+            tiers: [
+              {
+                level: "Production Standards",
+                badge: "badge-top",
+                title: "Responsive Auto-Fitting Grid Architecture",
+                desc: "Zero-media-query auto responsive grids using minmax expressions.",
+                code: `.responsive-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\n  gap: 1.5rem;\n  align-items: stretch;\n}\n\n.card-item {\n  background: #18181f;\n  border: 1px solid #453c2a;\n  border-radius: 12px;\n}`,
+                output: "[Fluid layout auto-arranging cards across desktop, tablet, and mobile]"
+              }
+            ]
+          }
+        ]
+      },
+      sql: {
+        title: "SQL & Relational Database Engineering",
+        subtitle: "Complex multi-table queries, analytical window functions, and indexing strategies.",
+        extensions: [
+          {
+            id: "sql_queries",
+            name: "Advanced SQL & CTEs",
+            icon: "fa-solid fa-database",
+            tiers: [
+              {
+                level: "Top Level (Production)",
+                badge: "badge-top",
+                title: "Common Table Expressions (CTEs) & DENSE_RANK()",
+                desc: "Compute multi-partition percentile rankings without nested subquery overhead.",
+                code: `WITH RankedStudents AS (\n  SELECT \n    student_name,\n    course_track,\n    final_score,\n    DENSE_RANK() OVER (PARTITION BY course_track ORDER BY final_score DESC) as rank_pos\n  FROM test_records\n)\nSELECT student_name, course_track, final_score\nFROM RankedStudents\nWHERE rank_pos = 1;`,
+                output: "student_name | course_track | final_score\n----------------------------------------\nFazal        | Python AI    | 99\nSara         | Java Spring  | 98"
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    let currentSelectedLang = 'python';
+
+    // 3. Open Course Portal & Render Sub-Navbar
+    function openCoursePortal(langKey) {
+      currentSelectedLang = langKey;
+      const data = courseEcosystem[langKey];
+      if (!data) return;
+
+      document.getElementById('coursePortalTitle').innerText = data.title;
+      document.getElementById('coursePortalSubtitle').innerText = data.subtitle;
+      document.getElementById('courseChatTitle').innerText = `Ask ${data.title.split(' ')[0]} AI Assistant`;
+
+      // Build Extension Sub-Nav Bar
+      const extBar = document.getElementById('extensionBar');
+      extBar.innerHTML = '';
+
+      data.extensions.forEach((ext, index) => {
+        const btn = document.createElement('button');
+        btn.className = `ext-btn ${index === 0 ? 'active' : ''}`;
+        btn.innerHTML = `<i class="${ext.icon}"></i> ${ext.name}`;
+        btn.onclick = (e) => {
+          document.querySelectorAll('.ext-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderExtensionContent(ext);
+        };
+        extBar.appendChild(btn);
+      });
+
+      // Render First Extension Content by default
+      renderExtensionContent(data.extensions[0]);
+
+      // Initialize Dedicated Chat
+      const dedicatedChat = document.getElementById('courseDedicatedChat');
+      dedicatedChat.innerHTML = `<div class="message bot">Welcome to the <b>${data.title}</b> portal! Ask me any doubt about extensions like NumPy, Pandas, Django, or request customized code examples.</div>`;
+
+      navigateTo('course-view');
+    }
+
+    function renderExtensionContent(ext) {
+      const container = document.getElementById('extensionContent');
+      container.innerHTML = '';
+
+      ext.tiers.forEach(tier => {
+        const section = document.createElement('div');
+        section.className = 'topic-section';
+        section.innerHTML = `
+          <span class="difficulty-badge ${tier.badge}">${tier.level}</span>
+          <h3>${tier.title}</h3>
+          <p>${tier.desc}</p>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span><i class="fa-solid fa-code"></i> Source Example</span>
+              <span>Executable</span>
+            </div>
+            <pre><code>${escapeHtml(tier.code)}</code></pre>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--gold-bright); margin-bottom: 5px; font-weight: 600;">Expected Terminal Output:</div>
+          <div class="output-box">${escapeHtml(tier.output)}</div>
+        `;
+        container.appendChild(section);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // 4. Live Code Runner Studio (Browser Sandbox)
+    function runClientCode() {
+      const code = document.getElementById('codeEditorTextarea').value;
+      const consoleEl = document.getElementById('consoleOutput');
+      consoleEl.innerText = ""; // Clear console
+
+      // Intercept console.log calls
+      const logs = [];
+      const originalLog = console.log;
+      console.log = function(...args) {
+        logs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : a)).join(" "));
+        originalLog.apply(console, args);
+      };
+
+      try {
+        // Execute Code Safely in browser
+        const result = new Function(code)();
+        if (logs.length > 0) {
+          consoleEl.innerText = logs.join("\n");
+        } else if (result !== undefined) {
+          consoleEl.innerText = `> Return: ${result}`;
+        } else {
+          consoleEl.innerText = "> Execution finished successfully (No output generated).";
+        }
+      } catch (err) {
+        consoleEl.innerText = `[Error]: ${err.message}`;
+      } finally {
+        console.log = originalLog; // Restore standard console
+      }
+    }
+
+    function clearConsole() {
+      document.getElementById('consoleOutput').innerText = "> Terminal cleared.";
+    }
+
+    // 5. Chat Engine Handlers
+    function sendCourseDedicatedQuery() {
+      const input = document.getElementById('courseDedicatedInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendMessage('courseDedicatedChat', text, 'user');
+      input.value = '';
+
+      setTimeout(() => {
+        const resp = `[${currentSelectedLang.toUpperCase()} Assistant]: Here is a structured code solution for "${text}":\n\n\`\`\`${currentSelectedLang}\n// Optimized enterprise snippet for:${text}\n\`\`\`\nWould you like me to walk through each line or test this logic in the Code Runner?`;
+        appendMessage('courseDedicatedChat', resp, 'bot');
+      }, 600);
+    }
+
+    function sendGeneralQuery() {
+      const input = document.getElementById('generalInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendMessage('generalChat', text, 'user');
+      input.value = '';
+
+      setTimeout(() => {
+        const resp = `[Study Sphere Assistant]: To resolve "${text}", verify your state lifecycle, check edge-case constraints, and confirm optimal time complexity.`;
+        appendMessage('generalChat', resp, 'bot');
+      }, 600);
+    }
+
+    function appendMessage(containerId, text, type) {
+      const container = document.getElementById(containerId);
+      const msg = document.createElement('div');
+      msg.className = `message ${type}`;
+      msg.textContent = text;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function handleEnter(e, type) {
+      if (e.key === 'Enter') {
+        if (type === 'courseDedicated') sendCourseDedicatedQuery();
+        else sendGeneralQuery();
+      }
+    }
+
+    // 6. Mock Test Engine with Percentage Evaluation
+    const mockQuestions = [
+      {
+        q: "In Python, which library is primarily used for fast multidimensional vector math?",
+        options: ["Flask", "NumPy", "BeautifulSoup", "PyPDF"],
+        answer: 1
+      },
+      {
+        q: "Which keyword is used in Java to inherit a class?",
+        options: ["implements", "extends", "inherits", "derive"],
+        answer: 1
+      },
+      {
+        q: "In Django, what does the 'M' in MVT architecture stand for?",
+        options: ["Module", "Middleware", "Model", "Method"],
+        answer: 2
+      },
+      {
+        q: "Which SQL clause is used to filter records aggregated by a GROUP BY clause?",
+        options: ["WHERE", "HAVING", "FILTER", "LIMIT"],
+        answer: 1
+      }
+    ];
+
+    let currentQ = 0;
+    let selectedOption = null;
+    let correctCount = 0;
+
+    function loadQuestion() {
+      const qData = mockQuestions[currentQ];
+      document.getElementById('quizStep').innerText = `Stage ${currentQ + 1} of ${mockQuestions.length}`;
+      document.getElementById('quizQuestion').innerText = qData.q;
+      
+      const optContainer = document.getElementById('quizOptions');
+      optContainer.innerHTML = '';
+      selectedOption = null;
+
+      qData.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-option';
+        div.innerText = opt;
+        div.onclick = () => {
+          document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedOption = idx;
+        };
+        optContainer.appendChild(div);
+      });
+    }
+
+    function submitAnswer() {
+      if (selectedOption === null) {
+        alert("Please choose an option to proceed.");
+        return;
+      }
+
+      if (selectedOption === mockQuestions[currentQ].answer) {
+        correctCount++;
+      }
+
+      currentQ++;
+      if (currentQ < mockQuestions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quizInterface').style.display = 'none';
+      const resultBox = document.getElementById('resultBox');
+      resultBox.style.display = 'block';
+
+      const percentage = Math.round((correctCount / mockQuestions.length) * 100);
+      document.getElementById('scoreCircle').innerText = `${percentage}%`;
+      document.getElementById('scoreSummary').innerText = `You scored ${correctCount} out of ${mockQuestions.length} correct (${percentage}% Accuracy).`;
+    }
+
+    function restartTest() {
+      currentQ = 0;
+      correctCount = 0;
+      selectedOption = null;
+      document.getElementById('resultBox').style.display = 'none';
+      document.getElementById('quizInterface').style.display = 'block';
+      loadQuestion();
+    }
+
+    // Initialize Mock Test on Page Load
+    loadQuestion();
+  </script>
+</body>
+</html>
